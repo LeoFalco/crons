@@ -1,9 +1,10 @@
 
 const { github } = require('../shared/github')
+const { wrapHandler } = require('../shared/sentry')
+const config = require('../shared/config')
 
-module.exports = {
-  async handler (event) {
-    const data = await github(`#graphql
+async function handler (event) {
+  const data = await github(`#graphql
       {
         thay: user(login: "ThayDias") {
           pullRequests(first: 100, states: OPEN, orderBy: {field: CREATED_AT, direction: DESC}) {
@@ -42,29 +43,30 @@ module.exports = {
       }
     `)
 
-    const pullRequests = [...data.thay.pullRequests.nodes, ...data.leo.pullRequests.nodes]
+  const pullRequests = [...data.thay.pullRequests.nodes, ...data.leo.pullRequests.nodes]
 
-    const filtered = pullRequests
-      .filter(pullRequest => pullRequest.isDraft === false)
-      .filter(pullRequest => pullRequest.reviewDecision !== 'APPROVED')
+  const filtered = pullRequests
+    .filter(pullRequest => pullRequest.isDraft === false)
+    .filter(pullRequest => pullRequest.reviewDecision !== 'APPROVED')
 
-    console.log(formatMessage(filtered))
+  console.log(formatMessage(filtered))
 
-    return {
-      statusCode: 200,
-      body: JSON.stringify(
-        {
-          message: 'Go Serverless v1.0! Your function executed successfully!',
-          input: event
-        },
-        null,
-        2
-      )
-    }
-
-    // Use this code if you don't use the http event with the LAMBDA-PROXY integration
-    // return { message: 'Go Serverless v1.0! Your function executed successfully!', event };
+  return {
+    statusCode: 200,
+    body: JSON.stringify(mapPayload(filtered), null, 2)
   }
+}
+
+function mapPayload (pullRequests) {
+  return pullRequests.map(pullRequest => {
+    return {
+      AUTHOR: pullRequest.author.login,
+      STATUS: pullRequest.reviewDecision,
+      TITLE: pullRequest.title,
+      LINK: pullRequest.permalink,
+      CREATED_AT: pullRequest.createdAt
+    }
+  })
 }
 
 function formatMessage (pullRequests) {
@@ -79,3 +81,5 @@ function formatMessage (pullRequests) {
     ].join('\n')
   }).join('\n')
 }
+
+module.exports.handler = config.isProduction ? wrapHandler(handler) : handler

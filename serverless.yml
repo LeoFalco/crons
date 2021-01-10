@@ -34,8 +34,9 @@ provider:
 #            - "/*"
 
 # you can define service wide environment variables here
-#  environment:
-#    variable1: value1
+  environment:
+    PRODUCTION: true
+    SERVERLESS_GITHUB_TOKEN: ${env:SERVERLESS_GITHUB_TOKEN}
 
 # you can add packaging information here
 #package:
@@ -48,14 +49,14 @@ provider:
 
 functions:
   hello:
-    handler: src/handlers/con.handler
+    handler: src/handlers/cron.handler
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
-#    events:
-#      - httpApi:
-#          path: /users/create
-#          method: get
+    events:
+     - httpApi:
+        path: /pulls/review-required
+        method: get
 #      - websocket: $connect
 #      - s3: ${env:BUCKET}
 #      - schedule: rate(10 minutes)

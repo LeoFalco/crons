@@ -1,0 +1,39 @@
+name: Continuous integration/deployment
+
+on:
+  push:
+    branches:
+      - 'master'
+  pull_request:
+    branches:
+      - '**'
+
+env:
+  SERVERLESS_GITHUB_TOKEN: ${{ secrets.SERVERLESS_GITHUB_TOKEN}}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '12.x'
+
+      - run: npm install -g serverless
+
+      - run: npm install
+
+      - run: npm run lint
+
+      - run: npm run test
+
+      - name: deploy
+        if: github.ref == 'refs/heads/master'
+        run: |
+          serverless config credentials --provider aws --key ${{ secrets.AWS_ACCESS_KEY_ID }} --secret ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          serverless deploy
+

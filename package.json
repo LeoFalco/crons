@@ -4,7 +4,10 @@
   "description": "",
   "type": "commonjs",
   "scripts": {
-    "test": "npx jest"
+    "test": "npx jest",
+    "deploy": "serverless deploy",
+    "lint": "npx eslint .",
+    "lint-fix": "npx eslint . --fix"
   },
   "repository": {
     "type": "git",
@@ -23,10 +26,10 @@
     "eslint-plugin-import": "2.22.1",
     "eslint-plugin-node": "11.1.0",
     "eslint-plugin-promise": "4.2.1",
-    "jest": "26.6.3",
-    "serverless": "2.18.0"
+    "jest": "26.6.3"
   },
   "dependencies": {
-    "@octokit/graphql": "4.5.8"
+    "@octokit/graphql": "4.5.8",
+    "@sentry/serverless": "5.29.2"
   }
 }
