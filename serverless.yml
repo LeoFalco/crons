@@ -48,7 +48,7 @@ provider:
 
 functions:
   hello:
-    handler: src/handler.cron
+    handler: src/handlers/con.handler
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
